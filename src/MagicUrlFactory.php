@@ -2,8 +2,10 @@
 
 namespace phmLabs\MagicUrl;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use phmLabs\MagicUrl\Rule\Rule;
+use phmLabs\MagicUrl\Rule\UrlPointerRule;
 
 class MagicUrlFactory
 {
@@ -30,5 +32,14 @@ class MagicUrlFactory
         }
 
         return new Uri($result);
+    }
+
+    public static function createFactoryWithRules()
+    {
+        $factory = new self;
+
+        $factory->attachRule(new UrlPointerRule(new Client()));
+
+        return $factory;
     }
 }
