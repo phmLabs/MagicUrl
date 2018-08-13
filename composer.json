@@ -1,5 +1,11 @@
 {
   "name": "phmlabs/magicurl",
   "description": "Use magic urls",
-  "license": "MIT"
+  "license": "MIT",
+
+  "autoload": {
+    "psr-4": {
+      "phmLabs\\MagicUrl\\": "src/"
+    }
+  }
 }
