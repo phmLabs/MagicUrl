@@ -50,9 +50,6 @@ class MagicUrlFactory
             throw new ResolveException('Unable to resolve ' . $urlString . ' with message "' . $e->getMessage());
         }
 
-        var_dump($result);
-        die;
-
         return new Uri($result);
     }
 
