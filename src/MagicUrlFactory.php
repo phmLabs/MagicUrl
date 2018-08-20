@@ -45,7 +45,7 @@ class MagicUrlFactory
                 $result = $rule->resolve($result);
             }
         } catch (ResolveException $e) {
-            throw new ResolveException('Unable to resolve ' . $urlString . ' with message "' . $e->getMessage());
+            throw new ResolveException('Unable to resolve ' . $urlString . ' with message: ' . $e->getMessage());
         }
 
         if (!filter_var($result, FILTER_VALIDATE_URL)) {
