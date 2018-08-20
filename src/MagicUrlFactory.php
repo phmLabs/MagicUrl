@@ -40,14 +40,12 @@ class MagicUrlFactory
 
         $result = substr($urlString, strlen(self::PREFIX));
 
-        var_dump($result);
-
         try {
             foreach ($this->rules as $rule) {
                 $result = $rule->resolve($result);
             }
         } catch (ResolveException $e) {
-            throw new ResolveException('Unable to resolve ' . $urlString . ' with message "' . $e->getMessage());
+            throw new ResolveException('Unable to resolve ' . $urlString . ' with message: ' . $e->getMessage());
         }
 
         return new Uri($result);

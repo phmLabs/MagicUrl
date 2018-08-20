@@ -60,7 +60,7 @@ class FromRule implements Rule
         if (array_key_exists($key, $this->handlers)) {
             return $this->handlers[$key];
         } else {
-            throw new ResolveException('Unknown handler ' . $key . '.');
+            throw new ResolveException('unknown handler "' . $key . '", valid handlers are ' . implode(', ', array_keys($this->handlers)) . '.');
         }
     }
 }
