@@ -40,14 +40,16 @@ class MagicUrlFactory
 
         $result = substr($urlString, strlen(self::PREFIX));
 
-        var_dump($result);
-
         try {
             foreach ($this->rules as $rule) {
                 $result = $rule->resolve($result);
             }
         } catch (ResolveException $e) {
             throw new ResolveException('Unable to resolve ' . $urlString . ' with message "' . $e->getMessage());
+        }
+
+        if (!filter_var($result, FILTER_VALIDATE_URL)) {
+            throw new ResolveException('The final resolved url string is not a valid url.');
         }
 
         return new Uri($result);

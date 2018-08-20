@@ -26,10 +26,19 @@ class UrlHandler implements Handler
         try {
             $result = $this->client->send(new Request('GET', $urlString));
         } catch (ClientException $e) {
-            throw new ResolveException("Unable to resolve url " . $urlString . " in UrlPointerRule. Endpoint returned " .$e->getCode() . ' as HTTP status code.');
+            throw new ResolveException("Unable to resolve url " . $urlString . ". Endpoint returned " . $e->getCode() . ' as HTTP status code.');
         } catch (\Exception $e) {
-            var_dump(get_class($e));
-            throw new ResolveException("Unable to resolve url " . $urlString . " in UrlPointerRule with error " . $e->getMessage());
+            throw new ResolveException("Unable to resolve url " . $urlString . " with error " . $e->getMessage());
+        }
+
+        $contentTypeArray = $result->getHeader("content-type");
+        $contentTypeParts = explode(';', $contentTypeArray[0]);
+
+
+        $contentType = strtolower($contentTypeParts[0]);
+
+        if ($contentType == "text/html") {
+            throw new ResolveException("Unable to resolve url " . $urlString . ". The document in a HTML document.");
         }
 
         $plainContent = (string)$result->getBody();
