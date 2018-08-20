@@ -34,16 +34,20 @@ class UrlHandler implements Handler
         $contentTypeArray = $result->getHeader("content-type");
         $contentTypeParts = explode(';', $contentTypeArray[0]);
 
-
-        $contentType = strtolower($contentTypeParts[0]);
-
-        if ($contentType == "text/html") {
-            throw new ResolveException("Unable to resolve url " . $urlString . ". The document in a HTML document.");
-        }
-
         $plainContent = (string)$result->getBody();
 
         $url = trim(preg_replace('/\s\s+/', ' ', $plainContent));
+
+        var_dump($url);
+
+        $pos = strpos($url, '://');
+
+        var_dump($pos);
+
+        if ($pos === false || $pos > 5) {
+            throw new ResolveException("Unable to resolve url " . $urlString . ", result is not valid url scheme. Response starts with: " . substr($url, 0, 20) . '.');
+        }
+
         return $url;
     }
 }
