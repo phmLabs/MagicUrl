@@ -12,6 +12,8 @@ class MagicUrlFactory
 {
     const PREFIX = '@';
 
+    const MAX_RULES = 20;
+
     const RULE_OPEN = '{';
     const RULE_CLOSE = '}';
 
@@ -43,12 +45,16 @@ class MagicUrlFactory
             return new Uri($urlString);
         }
 
+        if (substr_count($urlString, self::RULE_OPEN) != substr_count($urlString, self::RULE_CLOSE)) {
+            throw new ResolveException('Opening and closing parenthesis are not the same number.');
+        }
+
         $result = substr($urlString, strlen(self::PREFIX));
 
         $resolvedUrl = $this->resolveRules($result);
 
         if (!filter_var($resolvedUrl, FILTER_VALIDATE_URL)) {
-            throw new ResolveException('The final resolved url string is not a valid url.');
+            throw new ResolveException('The final resolved url string is not a valid url (' . substr($resolvedUrl, 0, 50) . ').');
         }
 
         return new Uri($resolvedUrl);
@@ -62,7 +68,7 @@ class MagicUrlFactory
                 $part = $rule->resolve($part);
             }
 
-            if($part === $initialPart) {
+            if ($part === $initialPart) {
                 throw new ResolveException('Unable to resolve ' . $part . ', no matching rule found.');
             }
         } catch (ResolveException $e) {
@@ -76,7 +82,10 @@ class MagicUrlFactory
     {
         $processedString = $urlString;
 
-        while ($rule = $this->getInnerRule($processedString)) {
+        $count = 0;
+
+        while (($rule = $this->getInnerRule($processedString)) && $count < self::MAX_RULES) {
+            $count++;
             $resolvedString = $this->resolvePart($rule);
             $processedString = str_replace(self::RULE_OPEN . $rule . self::RULE_CLOSE, $resolvedString, $processedString);
         }
