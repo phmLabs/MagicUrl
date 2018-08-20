@@ -12,6 +12,11 @@ class MagicUrlFactory
 {
     const PREFIX = '@';
 
+    const RULE_OPEN = '{';
+    const RULE_CLOSE = '}';
+
+    const REGEX_PATTERN = '(?=\{((?:[^{}]++|\{(?1)\})++)\})';
+
     /**
      * @var Rule[]
      */
@@ -40,19 +45,56 @@ class MagicUrlFactory
 
         $result = substr($urlString, strlen(self::PREFIX));
 
-        try {
-            foreach ($this->rules as $rule) {
-                $result = $rule->resolve($result);
-            }
-        } catch (ResolveException $e) {
-            throw new ResolveException('Unable to resolve ' . $urlString . ' with message: ' . $e->getMessage());
-        }
+        $resolvedUrl = $this->resolveRules($result);
 
-        if (!filter_var($result, FILTER_VALIDATE_URL)) {
+        if (!filter_var($resolvedUrl, FILTER_VALIDATE_URL)) {
             throw new ResolveException('The final resolved url string is not a valid url.');
         }
 
-        return new Uri($result);
+        return new Uri($resolvedUrl);
+    }
+
+    private function resolvePart($part)
+    {
+        $initialPart = $part;
+        try {
+            foreach ($this->rules as $rule) {
+                $part = $rule->resolve($part);
+            }
+
+            if($part === $initialPart) {
+                throw new ResolveException('Unable to resolve ' . $part . ', no matching rule found.');
+            }
+        } catch (ResolveException $e) {
+            throw new ResolveException('Unable to resolve ' . $part . ' with message: ' . $e->getMessage());
+        }
+
+        return $part;
+    }
+
+    private function resolveRules($urlString)
+    {
+        $processedString = $urlString;
+
+        while ($rule = $this->getInnerRule($processedString)) {
+            $resolvedString = $this->resolvePart($rule);
+            $processedString = str_replace(self::RULE_OPEN . $rule . self::RULE_CLOSE, $resolvedString, $processedString);
+        }
+
+        return $processedString;
+    }
+
+    private function getInnerRule($urlString)
+    {
+        preg_match_all('@' . self::REGEX_PATTERN . '@', $urlString, $parts);
+
+        foreach ($parts[1] as $part) {
+            if (strpos($part, self::RULE_OPEN) === false) {
+                return $part;
+            }
+        }
+
+        return false;
     }
 
     /**
