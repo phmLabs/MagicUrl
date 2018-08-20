@@ -69,7 +69,7 @@ class MagicUrlFactory
             }
 
             if ($part === $initialPart) {
-                throw new ResolveException('Unable to resolve ' . $part . ', no matching rule found.');
+                throw new ResolveException('Unable to resolve {' . $part . '}, no matching rule found.');
             }
         } catch (ResolveException $e) {
             throw new ResolveException('Unable to resolve ' . $part . ' with message: ' . $e->getMessage());
