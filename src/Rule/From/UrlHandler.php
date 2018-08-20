@@ -37,15 +37,10 @@ class UrlHandler implements Handler
         $plainContent = (string)$result->getBody();
 
         $url = trim(preg_replace('/\s\s+/', ' ', $plainContent));
-
-        var_dump($url);
-
         $pos = strpos($url, '://');
 
-        var_dump($pos);
-
         if ($pos === false || $pos > 5) {
-            throw new ResolveException("Unable to resolve url " . $urlString . ", result is not valid url scheme. Response starts with: " . substr($url, 0, 20) . '.');
+            throw new ResolveException("Unable to resolve url " . $urlString . ", result is not valid url scheme. Response starts with: " . htmlspecialchars(substr($url, 0, 20)) . '.');
         }
 
         return $url;
