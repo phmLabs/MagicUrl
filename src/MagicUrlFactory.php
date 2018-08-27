@@ -51,6 +51,7 @@ class MagicUrlFactory
 
         $result = substr($urlString, strlen(self::PREFIX));
 
+<<<<<<< Updated upstream
         $resolvedUrl = $this->resolveRules($result);
 
         if (!filter_var($resolvedUrl, FILTER_VALIDATE_URL)) {
@@ -63,6 +64,8 @@ class MagicUrlFactory
     private function resolvePart($part)
     {
         $initialPart = $part;
+=======
+>>>>>>> Stashed changes
         try {
             foreach ($this->rules as $rule) {
                 $part = $rule->resolve($part);
@@ -113,7 +116,9 @@ class MagicUrlFactory
     {
         $factory = new self;
 
-        $factory->attachRule(new FromRule(new Client()));
+        $client = new Client();
+
+        $factory->attachRule(new FromRule($client));
 
         return $factory;
     }
