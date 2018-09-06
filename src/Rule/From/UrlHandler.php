@@ -6,12 +6,16 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use phmLabs\MagicUrl\Rule\ResolveException;
+use phm\HttpWebdriverClient\Http\Client\HttpClient;
 
 class UrlHandler implements Handler
 {
+    /**
+     * @var HttpClient
+     */
     private $client;
 
-    public function __construct(Client $client)
+    public function __construct(HttpClient $client)
     {
         $this->client = $client;
     }
@@ -19,12 +23,12 @@ class UrlHandler implements Handler
     /**
      * @param $urlString
      * @return string
-     * @throws \GuzzleHttp\Exception\GuzzleException | ResolveException
+     * @throws ResolveException
      */
     public function resolve($urlString, $lineNumber = 1)
     {
         try {
-            $result = $this->client->send(new Request('GET', $urlString));
+            $result = $this->client->sendRequest(new Request('GET', $urlString));
         } catch (ClientException $e) {
             throw new ResolveException("Unable to resolve url " . $urlString . ". Endpoint returned " . $e->getCode() . ' as HTTP status code.');
         } catch (\Exception $e) {

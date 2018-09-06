@@ -2,8 +2,9 @@
 
 namespace phmLabs\MagicUrl\Rule;
 
-use GuzzleHttp\Client;
+use phmLabs\MagicUrl\Rule\From\SitemapHandler;
 use phmLabs\MagicUrl\Rule\From\UrlHandler;
+use phm\HttpWebdriverClient\Http\Client\HttpClient;
 
 class FromRule implements Rule
 {
@@ -13,11 +14,12 @@ class FromRule implements Rule
 
     private $handlers = [];
 
-    public function __construct(Client $client)
+    public function __construct(HttpClient $client)
     {
         $this->client = $client;
 
         $this->handlers['url'] = new UrlHandler($client);
+        $this->handlers['sitemap'] = new SitemapHandler($client);
     }
 
     /**

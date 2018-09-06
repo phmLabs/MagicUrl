@@ -4,6 +4,9 @@ namespace phmLabs\MagicUrl;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
+use phm\HttpWebdriverClient\Http\Client\Guzzle\GuzzleClient;
 use phmLabs\MagicUrl\Rule\FromRule;
 use phmLabs\MagicUrl\Rule\ResolveException;
 use phmLabs\MagicUrl\Rule\Rule;
@@ -41,6 +44,8 @@ class MagicUrlFactory
      */
     public function resolve($urlString)
     {
+        $urlString = trim($urlString);
+
         if (strpos($urlString, self::PREFIX) !== 0) {
             return new Uri($urlString);
         }
@@ -51,11 +56,11 @@ class MagicUrlFactory
 
         $result = substr($urlString, strlen(self::PREFIX));
 
-<<<<<<< Updated upstream
+
         $resolvedUrl = $this->resolveRules($result);
 
         if (!filter_var($resolvedUrl, FILTER_VALIDATE_URL)) {
-            throw new ResolveException('The final resolved url string is not a valid url (' . substr($resolvedUrl, 0, 50) . ').');
+            throw new ResolveException('The final resolved url string is not a valid url (' . substr($resolvedUrl, 0, 80) . ').');
         }
 
         return new Uri($resolvedUrl);
@@ -64,8 +69,7 @@ class MagicUrlFactory
     private function resolvePart($part)
     {
         $initialPart = $part;
-=======
->>>>>>> Stashed changes
+
         try {
             foreach ($this->rules as $rule) {
                 $part = $rule->resolve($part);
@@ -116,9 +120,12 @@ class MagicUrlFactory
     {
         $factory = new self;
 
-        $client = new Client();
+        $client = new GuzzleClient();
+        $client->setOption('timeout', 30000);
 
-        $factory->attachRule(new FromRule($client));
+        $cachedClient = new FileCacheDecorator($client);
+
+        $factory->attachRule(new FromRule($cachedClient));
 
         return $factory;
     }
