@@ -28,30 +28,33 @@ class SitemapHandler implements Handler
     {
         $elementNumber = max(1, $elementNumber);
 
-        $request = new BrowserRequest('get', $sitemapUrl);
-        $response = $this->client->sendRequest($request);
+        try {
+            $request = new BrowserRequest('get', $sitemapUrl);
+            $response = $this->client->sendRequest($request);
+        } catch (ClientException $e) {
+            throw new  ResolveException('Unable to get "' . $sitemapUrl . '". Error: ' . $e->getMessage() . '.');
+        }
 
         $sitemapContent = (string)$response->getBody();
 
-        $doc = new \DOMDocument();
-        $doc->loadXML($sitemapContent);
 
-        $xpath = new \DOMXPath($doc);
+        $reader = new \XMLReader;
 
-        $urlQuery = '//urlset/url/loc/text()';
+        $reader->xml($sitemapContent);
 
-        $entries = $xpath->query($urlQuery);
+        $count = 0;
+        $currentElement = 0;
 
-        $locations = $doc->getElementsByTagName('loc');
+        while ($reader->read()) {
+            if ($reader->name == 'loc' && $reader->nodeType == \XMLReader::ELEMENT) {
+                $count++;
+                $currentElement++;
 
-        $urls = array();
-
-        foreach ($locations as $location) {
-            $urls[] = $location->nodeValue;
+                if ($currentElement == $elementNumber) {
+                   return $reader->readInnerXml();
+                }
+            }
         }
-
-        var_dump($urls[$elementNumber - 1]);
-
-        return $urls[$elementNumber - 1];
+        throw new  ResolveException('The sitemap does only provide ' . $count . ' elements. Element number ' . $elementNumber . ' was requested.');
     }
 }
