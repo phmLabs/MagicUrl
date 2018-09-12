@@ -9,6 +9,7 @@ use Koalamon\Client\Reporter\Event;
 use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
 use phmLabs\MagicUrl\Rule\ResolveException;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
+use whm\Html\Uri;
 
 class XPathHandler implements Handler
 {
@@ -26,7 +27,7 @@ class XPathHandler implements Handler
      */
     public function resolve($url, $xPath, $elementNumber = 1)
     {
-        $elementNumber = max(1, $elementNumber);
+        $elementNumber = max(0, $elementNumber - 1);
 
         try {
             $request = new BrowserRequest('get', $url);
@@ -42,20 +43,26 @@ class XPathHandler implements Handler
 
         $domXPath = new \DOMXPath($domDocument);
 
-        $results = $domXPath->query($xPath);
+        $results = @$domXPath->query($xPath);
 
-        var_dump($html);
-        var_dump($xPath);
+        if ($results === false) {
+            throw new ResolveException('The given xpath is not valid.');
+        }
 
-        $origin = new Uri
+        if ($results->length == 0) {
+            throw new ResolveException('The given xpath does not return any elements.');
+        }
 
-        $url = $results[$elementNumber - 1]->value;
+        if ($results->length < $elementNumber + 1) {
+            throw new ResolveException('The given xpath does only return ' . $results->length . ' elements. You ask for element number ' . ($elementNumber + 1) . '.');
+        }
 
-        var_dump();
+        $origin = new Uri($url);
 
-        die;
+        $url = $results[$elementNumber]->value;
 
+        $absoluteUri = Uri::createAbsoluteUrl(new Uri($url), $origin);
 
-        throw new  ResolveException('The sitemap does only provide ' . $count . ' elements. Element number ' . $elementNumber . ' was requested.');
+        return (string)$absoluteUri;
     }
 }
