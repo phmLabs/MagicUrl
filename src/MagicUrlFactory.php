@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Uri;
 use phm\HttpWebdriverClient\Http\Client\Decorator\CacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\Decorator\FileCacheDecorator;
 use phm\HttpWebdriverClient\Http\Client\Guzzle\GuzzleClient;
+use phmLabs\MagicUrl\Rule\DateRule;
 use phmLabs\MagicUrl\Rule\FromRule;
 use phmLabs\MagicUrl\Rule\ResolveException;
 use phmLabs\MagicUrl\Rule\Rule;
@@ -126,6 +127,7 @@ class MagicUrlFactory
         $cachedClient = new FileCacheDecorator($client);
 
         $factory->attachRule(new FromRule($cachedClient));
+        $factory->attachRule(new DateRule());
 
         return $factory;
     }
