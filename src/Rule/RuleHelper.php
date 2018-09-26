@@ -23,6 +23,8 @@ abstract class RuleHelper
 
         foreach ($parameters as $paramNo => $parameter) {
 
+            $parameter = trim($parameter);
+
             foreach ($blocks as $key => $block) {
                 $parameter = str_replace('#block_' . $key . '#', $block, $parameter);
             }
