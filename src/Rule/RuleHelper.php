@@ -27,6 +27,10 @@ abstract class RuleHelper
                 $parameter = str_replace('#block_' . $key . '#', $block, $parameter);
             }
 
+            if (strpos($parameter, "'") === 0 || strpos($parameter, '"') === 0) {
+                $parameter = substr($parameter, 1, strlen($parameter) - 2);
+            }
+
             $parameters[$paramNo] = trim($parameter, " \t\n\r\0\x0B\"");
         }
 
