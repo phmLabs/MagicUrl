@@ -27,6 +27,8 @@ class UrlHandler implements Handler
      */
     public function resolve($urlString, $lineNumber = 1)
     {
+        $lineNumber = max(1, $lineNumber);
+
         try {
             $result = $this->client->sendRequest(new Request('GET', $urlString));
         } catch (ClientException $e) {
@@ -40,7 +42,15 @@ class UrlHandler implements Handler
 
         $plainContent = (string)$result->getBody();
 
-        $url = trim(preg_replace('/\s\s+/', ' ', $plainContent));
+        $plainContentLines = (explode("\n", $plainContent));
+
+        if (count($plainContentLines) < $lineNumber) {
+            throw new ResolveException("Trying to select element #" . $lineNumber . ", only " . count($plainContentLines) . ' elements found.');
+        }
+
+        $urlLine = $plainContentLines[$lineNumber - 1];
+
+        $url = trim(preg_replace('/\s\s+/', ' ', $urlLine));
         $pos = strpos($url, '://');
 
         if ($pos === false || $pos > 5) {

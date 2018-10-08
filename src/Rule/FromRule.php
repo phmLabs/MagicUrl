@@ -5,6 +5,7 @@ namespace phmLabs\MagicUrl\Rule;
 use phmLabs\MagicUrl\Rule\From\SitemapHandler;
 use phmLabs\MagicUrl\Rule\From\UrlHandler;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
+use phmLabs\MagicUrl\Rule\From\XPathHandler;
 
 class FromRule implements Rule
 {
@@ -20,6 +21,7 @@ class FromRule implements Rule
 
         $this->handlers['url'] = new UrlHandler($client);
         $this->handlers['sitemap'] = new SitemapHandler($client);
+        $this->handlers['xpath'] = new XPathHandler($client);
     }
 
     /**
@@ -32,12 +34,22 @@ class FromRule implements Rule
         if (strpos(strtolower($urlString), $this->prefix) === 0) {
 
             $urlString = trim($urlString);
+            preg_match('^".*"^', $urlString, $blocks);
+
+            foreach ($blocks as $key => $block) {
+                $urlString = str_replace($block, '#block_' . $key . '#', $urlString);
+            }
 
             $parameterString = substr($urlString, strlen($this->prefix), strlen($urlString) - strlen($this->prefix) - 1);
             $parameters = explode(',', $parameterString);
 
-            foreach ($parameters as $key => $parameter) {
-                $parameters[$key] = trim($parameter);
+            foreach ($parameters as $paramNo => $parameter) {
+
+                foreach ($blocks as $key => $block) {
+                    $parameter = str_replace('#block_' . $key . '#', $block, $parameter);
+                }
+
+                $parameters[$paramNo] = trim($parameter, " \t\n\r\0\x0B\"");
             }
 
             $handlerName = array_shift($parameters);
