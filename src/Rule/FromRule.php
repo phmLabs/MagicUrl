@@ -2,6 +2,7 @@
 
 namespace phmLabs\MagicUrl\Rule;
 
+use phmLabs\MagicUrl\Rule\From\RssFeedHandler;
 use phmLabs\MagicUrl\Rule\From\SitemapHandler;
 use phmLabs\MagicUrl\Rule\From\UrlHandler;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
@@ -22,6 +23,7 @@ class FromRule implements Rule
         $this->handlers['url'] = new UrlHandler($client);
         $this->handlers['sitemap'] = new SitemapHandler($client);
         $this->handlers['xpath'] = new XPathHandler($client);
+        $this->handlers['rss'] = new RssFeedHandler($client);
     }
 
     /**

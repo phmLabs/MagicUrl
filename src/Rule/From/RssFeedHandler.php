@@ -7,7 +7,7 @@ use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
 use phmLabs\MagicUrl\Rule\ResolveException;
 use phm\HttpWebdriverClient\Http\Client\HttpClient;
 
-class SitemapHandler implements Handler
+class RssFeedHandler implements Handler
 {
     private $client;
 
@@ -21,34 +21,35 @@ class SitemapHandler implements Handler
      * @return string
      * @throws \GuzzleHttp\Exception\GuzzleException | ResolveException
      */
-    public function resolve($sitemapUrl, $elementNumber = 1)
+    public function resolve($rssFeedUrl, $elementNumber = 1)
     {
         $elementNumber = max(1, $elementNumber);
 
         try {
-            $request = new BrowserRequest('get', $sitemapUrl);
+            $request = new BrowserRequest('get', $rssFeedUrl);
             $response = $this->client->sendRequest($request);
         } catch (ClientException $e) {
-            throw new  ResolveException('Unable to get "' . $sitemapUrl . '". Error: ' . $e->getMessage() . '.');
+            throw new  ResolveException('Unable to get "' . $rssFeedUrl . '". Error: ' . $e->getMessage() . '.');
         }
 
-        $sitemapContent = (string)$response->getBody();
+        $rssContent = (string)$response->getBody();
 
 
         $reader = new \XMLReader;
 
-        $reader->xml($sitemapContent);
+        $reader->xml($rssContent);
 
         $count = 0;
         $currentElement = 0;
 
         while ($reader->read()) {
-            if ($reader->name == 'loc' && $reader->nodeType == \XMLReader::ELEMENT) {
+            if ($reader->name == 'link' && $reader->nodeType == \XMLReader::ELEMENT) {
                 $count++;
                 $currentElement++;
 
-                if ($currentElement == $elementNumber) {
-                   return $reader->readInnerXml();
+                // @readme the plus one is needed because the feed has a link on its own
+                if ($currentElement == $elementNumber +1 ) {
+                    return $reader->readInnerXml();
                 }
             }
         }
