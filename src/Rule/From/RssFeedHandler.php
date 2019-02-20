@@ -34,7 +34,6 @@ class RssFeedHandler implements Handler
 
         $rssContent = (string)$response->getBody();
 
-
         $reader = new \XMLReader;
 
         $reader->xml($rssContent);
@@ -48,11 +47,17 @@ class RssFeedHandler implements Handler
                 $currentElement++;
 
                 // @readme the plus one is needed because the feed has a link on its own
-                if ($currentElement == $elementNumber +1 ) {
-                    return $reader->readInnerXml();
+                if ($currentElement == $elementNumber + 1) {
+                    $link = $reader->readInnerXml();
+
+                    $link = str_replace("<![CDATA[", "", $link);
+                    $link = str_replace("]]>", "", $link);
+
+                    return $link;
                 }
             }
         }
         throw new  ResolveException('The sitemap does only provide ' . $count . ' elements. Element number ' . $elementNumber . ' was requested.');
     }
 }
+ 

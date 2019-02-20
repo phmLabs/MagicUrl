@@ -48,7 +48,12 @@ class SitemapHandler implements Handler
                 $currentElement++;
 
                 if ($currentElement == $elementNumber) {
-                   return $reader->readInnerXml();
+                    $link = $reader->readInnerXml();
+
+                    $link = str_replace("<![CDATA[", "", $link);
+                    $link = str_replace("]]>", "", $link);
+
+                    return $link;
                 }
             }
         }
