@@ -116,6 +116,7 @@ class MagicUrlFactory
 
     /**
      * @return MagicUrlFactory
+     * @throws \Exception
      */
     public static function createFactoryWithRules()
     {
@@ -124,7 +125,8 @@ class MagicUrlFactory
         $client = new GuzzleClient();
         $client->setOption('timeout', 30000);
 
-        $cachedClient = new FileCacheDecorator($client);
+        $cacheInterval = new \DateInterval('PT5M');
+        $cachedClient = new FileCacheDecorator($client, null, $cacheInterval);
 
         $factory->attachRule(new FromRule($cachedClient));
         $factory->attachRule(new DateRule());

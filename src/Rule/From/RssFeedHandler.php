@@ -29,7 +29,7 @@ class RssFeedHandler implements Handler
             $request = new BrowserRequest('get', $rssFeedUrl);
             $response = $this->client->sendRequest($request);
         } catch (ClientException $e) {
-            throw new  ResolveException('Unable to get "' . $rssFeedUrl . '". Error: ' . $e->getMessage() . '.');
+            throw new ResolveException('Unable to get "' . $rssFeedUrl . '". Error: ' . $e->getMessage() . '.');
         }
 
         $rssContent = (string)$response->getBody();
