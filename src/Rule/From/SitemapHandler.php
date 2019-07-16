@@ -32,8 +32,16 @@ class SitemapHandler implements Handler
             throw new  ResolveException('Unable to get "' . $sitemapUrl . '". Error: ' . $e->getMessage() . '.');
         }
 
-        $sitemapContent = (string)$response->getBody();
+        $body = (string)$response->getBody();
 
+        if ($response->hasHeader('content-type')) {
+            $contentType = $response->getHeader('content-type');
+            if (is_array($contentType) && in_array(strtolower($contentType[0]), $this->gzipContentTypes)) {
+                $body = gzdecode((string)$response->getBody());
+            }
+        }
+
+        $sitemapContent = $body;
 
         $reader = new \XMLReader;
 
