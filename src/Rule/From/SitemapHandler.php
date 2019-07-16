@@ -9,6 +9,11 @@ use phm\HttpWebdriverClient\Http\Client\HttpClient;
 
 class SitemapHandler implements Handler
 {
+    private $gzipContentTypes = [
+        'application/x-gzip',
+        'application/gzip'
+    ];
+
     private $client;
 
     public function __construct(HttpClient $client)
