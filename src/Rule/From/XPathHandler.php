@@ -16,7 +16,7 @@ class XPathHandler implements Handler
     private $gzipContentTypes = [
         'application/x-gzip',
         'application/gzip'
-    ];s
+    ];
 
     public function __construct(HttpClient $client)
     {
