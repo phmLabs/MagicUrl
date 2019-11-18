@@ -3,15 +3,20 @@
 namespace phmLabs\MagicUrl\Rule\From;
 
 use GuzzleHttp\Exception\ClientException;
+use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use phm\HttpWebdriverClient\Http\Request\BrowserRequest;
 use phmLabs\MagicUrl\Rule\ResolveException;
-use phm\HttpWebdriverClient\Http\Client\HttpClient;
 use whm\Html\Uri;
 
 
 class XPathHandler implements Handler
 {
     private $client;
+
+    private $gzipContentTypes = [
+        'application/x-gzip',
+        'application/gzip'
+    ];s
 
     public function __construct(HttpClient $client)
     {
@@ -35,6 +40,13 @@ class XPathHandler implements Handler
         }
 
         $html = (string)$response->getBody();
+
+        if ($response->hasHeader('content-type')) {
+            $contentType = $response->getHeader('content-type');
+            if (is_array($contentType) && in_array(strtolower($contentType[0]), $this->gzipContentTypes)) {
+                $html = gzdecode($html);
+            }
+        }
 
         $domDocument = new \DOMDocument();
         @$domDocument->loadHTML($html);
